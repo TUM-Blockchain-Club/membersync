@@ -1,0 +1,23 @@
+{
+  "name": "membersync",
+  "version": "1.0.0",
+  "description": "Member synchronization automation tool",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "discord",
+    "gcp"
+  ],
+  "author": "Yudhistira Arief Wibowo",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.8.2"
+  },
+  "dependencies": {
+    "@google-cloud/functions-framework": "^3.5.1",
+    "@notionhq/client": "^2.3.0",
+    "googleapis": "^148.0.0",
+    "ky": "^1.8.0"
+  }
+}
