@@ -1,0 +1,61 @@
+permissions:
+  id-token: write
+  contents: read
+
+on:
+  push:
+    branches:
+      - main
+
+name: 'Terraform Deploy'
+
+jobs:
+  terraform:
+    name: 'Terraform'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - id: 'auth'
+      name: 'Authenticate to Google Cloud'
+      uses: 'google-github-actions/auth@v0.4.0'
+      with:
+        workload_identity_provider: 'projects/107578445529/locations/global/workloadIdentityPools/github-pool/providers/github'
+        service_account: 'project-service-account@tbc-user-self-service.iam.gserviceaccount.com'
+    
+    - name: Checkout repository
+      uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '22'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build TypeScript
+      run: npm run build
+      
+    - name: Create function ZIP
+      run: zip -r function-source.zip dist package.json package-lock.json node_modules
+    
+    - name: Setup OpenTofu
+      uses: opentofu/setup-opentofu@v1
+      with:
+        tofu_version: '1.5.0'
+    
+    - name: OpenTofu Init
+      working-directory: ./opentofu
+      run: tofu init
+    
+    - name: OpenTofu Format
+      working-directory: ./opentofu
+      run: tofu fmt -check
+    
+    - name: OpenTofu Plan
+      working-directory: ./opentofu
+      run: tofu plan -out=tfplan
+      
+    - name: OpenTofu Apply
+      working-directory: ./opentofu
+      run: tofu apply -auto-approve tfplan 
